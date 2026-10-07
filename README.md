@@ -25,228 +25,49 @@ Make sure you have the following installed on your machine:
 
 code
 ```
+import time
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-import time
 
 driver = webdriver.Chrome()
-driver.maximize_window()
-
-wait = WebDriverWait(driver, 20)
 
 driver.get("https://www.amazon.in/")
 
-login = wait.until(
-    EC.element_to_be_clickable(
-        (By.ID, "nav-link-accountList")
-    )
-)
+time.sleep(10)
 
-login.click()
+search = driver.find_element(By.ID, "twotabsearchtextbox")
+search.send_keys("Watch for men")
+search.send_keys(Keys.RETURN)
 
-email = wait.until(
-    EC.visibility_of_element_located(
-        (By.ID, "ap_email_login")
-    )
-)
+time.sleep(10)
 
-email.send_keys("9942523498")
-
-continue_button = wait.until(
-    EC.element_to_be_clickable(
-        (By.CSS_SELECTOR, "input[type='submit']")
-    )
-)
-
-continue_button.click()
-
-password = wait.until(
-    EC.visibility_of_element_located(
-        (By.ID, "ap_password")
-    )
-)
-
-password.send_keys("Kav@12")
-
-print("Password entered")
-
-sign_in = wait.until(
-    EC.element_to_be_clickable(
-        (By.ID, "signInSubmit")
-    )
-)
-
-sign_in.click()
-
-print("Sign-in clicked")
-
-search = wait.until(
-    EC.element_to_be_clickable(
-        (By.ID, "twotabsearchtextbox")
-    )
-)
-
-print("Login successful")
-
-search.clear()
-
-search.send_keys("OnePlus Nord Buds")
-
-search.send_keys(Keys.ENTER)
-
-print("Product searched")
-
-wait.until(
-    EC.url_contains("s?k=")
-)
-
-print("Search page loaded")
-
-print("Current URL:", driver.current_url)
-
-
-products = wait.until(
-    EC.presence_of_all_elements_located(
-        (By.CSS_SELECTOR, "[data-asin]")
-    )
-)
-
-print(
-    "Product containers found:",
-    len(products)
-)
-
-
-product_url = None
-
-for product in products:
-
-    asin = product.get_attribute("data-asin")
-
-    if asin and len(asin) == 10:
-
-        links = product.find_elements(
-            By.CSS_SELECTOR,
-            "a"
-        )
-
-        for link in links:
-
-            product_text = link.text.strip()
-
-            if (
-                product_text
-                and "OnePlus Nord Buds" in product_text
-            ):
-
-                product_url = link.get_attribute(
-                    "href"
-                )
-
-                print("Product found:")
-                print(product_text)
-
-                print("ASIN:", asin)
-
-                print(
-                    "Product URL:",
-                    product_url
-                )
-
-                break
-
-    if product_url:
-        break
-
-if product_url is None:
-
-    print("Product not found")
-
-    input(
-        "Press Enter to close browser..."
-    )
-
-    driver.quit()
-    exit()
-
-
-driver.get(product_url)
-
-print("Opening product page...")
-
-
-product_title = wait.until(
-    EC.visibility_of_element_located(
-        (By.ID, "productTitle")
-    )
-)
-
-print("Product page opened")
-
-print(
-    "Product:",
-    product_title.text.strip()
-)
-
-add_to_cart = wait.until(
-    EC.element_to_be_clickable(
-        (By.ID, "add-to-cart-button")
-    )
-)
-
-add_to_cart.click()
-
-print("Product added to cart")
-
-time.sleep(4)
-
-
-driver.get(
-    "https://www.amazon.in/gp/cart/view.html"
-)
-
-print("Opening cart...")
-
-time.sleep(4)
-
-print(
-    "Cart URL:",
-    driver.current_url
-)
-
-print(
-    "Cart title:",
-    driver.title
-)
-
-
-proceed = wait.until(
-    EC.element_to_be_clickable(
-        (By.NAME, "proceedToRetailCheckout")
-    )
-)
-
-proceed.click()
-
-print("Proceeding to checkout...")
+product = driver.find_element(By.CSS_SELECTOR, "[data-component-type='s-search-result'] h2")
+product.click()
 
 time.sleep(5)
 
-print(
-    "Checkout URL:",
-    driver.current_url
-)
+tabs = driver.window_handles
+driver.switch_to.window(tabs[1])
 
-print(
-    "Checkout title:",
-    driver.title
-)
-input(
-    "Press Enter to close the browser..."
-)
+time.sleep(10)
+
+add_cart = driver.find_element(By.ID, "add-to-cart-button")
+add_cart.click()
+
+time.sleep(10)
+
+cart = driver.find_element(By.ID, "nav-cart")
+cart.click()
+
+time.sleep(10)
+
+items = driver.find_elements(By.CSS_SELECTOR, "div.sc-list-item")
+
+print("Number of items in cart:", len(items))
+
+time.sleep(5)
 
 driver.quit()
 ```
